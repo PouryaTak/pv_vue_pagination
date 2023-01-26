@@ -2,4 +2,4 @@
 pagination component for vue (using vite)
 
 
-**[View example](https://codepen.io/PouryaTak/pen/xxXmMeq)**
+**[View example](https://codepen.io/pouriversal/pen/xxXmMeq)**
