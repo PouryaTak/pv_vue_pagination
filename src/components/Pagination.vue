@@ -1,9 +1,9 @@
 <template>
   <div v-if="paginationData.totalPages / paginationData.perPage > 1" class="pv_pagination">
-    <div class="pv_page_input" :class="pageInputToggler ? 'toggle_page_input':''">
-      <form @submit.prevent="jumptoPage">
-        <input ref="pv_input" type="number" v-model.number="page" />
-        <button type="submit" class="pv_btn">Go</button>
+    <div class="pv_page_input" :class="pageInputToggler ? 'toggle_page_input' : ''"  data-name="pv_page_modal">
+      <form @submit.prevent="jumpToPage" data-name="pv_page_modal">
+        <input ref="pv_input" type="number" v-model.number="page" data-name="pv_page_modal" />
+        <button type="submit" class="pv_btn"  data-name="pv_page_modal">Go</button>
       </form>
     </div>
     <button class="pv_action_btn" :class="paginationData.currentPage == 1 ? 'disabled' : ''" @click="gotoPage(paginationData.currentPage - 1)">
@@ -21,7 +21,7 @@
       <li v-for="i in 3" :key="i" class="pv_btn" :class="paginationData.currentPage == i ? 'active' : ''" @click="gotoPage(i)">
         {{ i }}
       </li>
-      <li class="pv_btn" @click="pageInputToggle">...</li>
+      <li class="pv_btn" data-name="pv_page_modal" @click="pageInputToggle(true)">...</li>
       <li v-for="i in threeLastPages" :key="i" class="pv_btn" :class="paginationData.currentPage == i ? 'active' : ''" @click="gotoPage(i)">
         {{ i }}
       </li>
@@ -32,7 +32,7 @@
         {{ i }}
       </li>
       <li class="pv_btn" @click="gotoPage(4)">4</li>
-      <li class="pv_btn" @click="pageInputToggle">...</li>
+      <li class="pv_btn" data-name="pv_page_modal" @click="pageInputToggle(true)">...</li>
       <li v-for="i in twoLastPages" :key="i" class="pv_btn" :class="paginationData.currentPage == i ? 'active' : ''" @click="gotoPage(i)">
         {{ i }}
       </li>
@@ -42,7 +42,7 @@
       <li v-for="i in 2" :key="i" class="pv_btn" :class="paginationData.currentPage == i ? 'active' : ''" @click="gotoPage(i)">
         {{ i }}
       </li>
-      <li class="pv_btn" @click="pageInputToggle">...</li>
+      <li class="pv_btn" data-name="pv_page_modal" @click="pageInputToggle(true)">...</li>
       <li class="pv_btn" @click="gotoPage(paginationData.totalPages - 3)">
         {{ paginationData.totalPages - 3 }}
       </li>
@@ -51,31 +51,11 @@
       </li>
     </ul>
 
-    <!-- <ul v-else-if="paginationData.currentPage == 1 && paginationData.totalPages < 0" class="flex_horizontal_align">
-      <li class="pv_btn active">
-        {{ paginationData.currentPage }}
-      </li>
-      <li class="pv_btn" @click="gotoPage(paginationData.currentPage + 1)">
-        {{ paginationData.currentPage + 1 }}
-      </li>
-    </ul>
-    <ul v-else-if="paginationData.currentPage !== 1 && paginationData.totalPages < 0" class="flex_horizontal_align">
-      <li class="pv_btn" @click="gotoPage(paginationData.currentPage - 1)">
-        {{ paginationData.currentPage - 1 }}
-      </li>
-      <li class="pv_btn active">
-        {{ paginationData.currentPage }}
-      </li>
-      <li class="pv_btn" @click="gotoPage(paginationData.currentPage + 1)">
-        {{ paginationData.currentPage + 1 }}
-      </li>
-    </ul> -->
-
     <ul v-else class="flex_horizontal_align">
       <li class="pv_btn" @click="gotoPage(1)">
         {{ 1 }}
       </li>
-      <li class="pv_btn" @click="pageInputToggle">...</li>
+      <li class="pv_btn" data-name="pv_page_modal" @click="pageInputToggle(true)">...</li>
       <li class="pv_btn" @click="gotoPage(paginationData.currentPage - 1)">
         {{ paginationData.currentPage - 1 }}
       </li>
@@ -85,7 +65,7 @@
       <li class="pv_btn" @click="gotoPage(paginationData.currentPage + 1)">
         {{ paginationData.currentPage + 1 }}
       </li>
-      <li class="pv_btn" @click="pageInputToggle">...</li>
+      <li class="pv_btn" data-name="pv_page_modal" @click="pageInputToggle(true)">...</li>
       <li class="pv_btn" @click="gotoPage(paginationData.totalPages)">
         {{ paginationData.totalPages }}
       </li>
@@ -140,11 +120,21 @@ export default {
       }
       this.$emit("gotoPage", page);
     },
-    pageInputToggle() {
-      this.pageInputToggler = !this.pageInputToggler;
+    pageInputToggle(state) {
+      this.pageInputToggler = state;
       this.$refs.pv_input.focus();
+      if(state){
+        document.addEventListener("click", this.closeOnClickOutside)
+      } else {
+        document.removeEventListener("click", this.closeOnClickOutside)
+      }
     },
-    jumptoPage() {
+    closeOnClickOutside(e){
+      if(e.target.dataset?.name !== "pv_page_modal"){
+        this.pageInputToggle(false)
+      }
+    },
+    jumpToPage() {
       if (!this.page || this.page <= 0 || this.page > this.paginationData.totalPages) {
         return;
       }
@@ -158,7 +148,7 @@ export default {
 <style scoped>
 * {
   box-sizing: border-box;
-    transition: all .3s ease;
+  transition: all 0.3s ease;
 }
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
@@ -280,17 +270,6 @@ input[type="number"] {
   cursor: default;
   background: var(--disable);
 }
-
-/* li.page {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.5rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-left: 0.25rem;
-  cursor: pointer;
-} */
 
 .pv_btn.active {
   background: var(--active_color);
