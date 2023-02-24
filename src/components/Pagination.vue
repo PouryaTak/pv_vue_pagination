@@ -130,6 +130,7 @@ export default {
       }
     },
     closeOnClickOutside(e){
+
       if(e.target.dataset?.name !== "pv_page_modal"){
         this.pageInputToggle(false)
       }
